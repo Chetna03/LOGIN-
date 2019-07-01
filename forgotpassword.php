@@ -1,37 +1,62 @@
 <?php 
-if(isset($_POST['submit']))
+//session_start();
+$host='localhost';
+$dbname='useraccounts';
+$password='';
+$user='root';
+$dsn="mysql:host=$host;dbname=$dbname";
+$pdo = new PDO($dsn,$user,$password);
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+if(isset($_POST['emailverify']))
 {
 	$num=$_POST['number'];
-	// Account details
-	$apiKey = urlencode('wlGoSM/u59U-s8cIovyrQ6HNFsXBR3DIBkN8ecKhMz');
-	
-	// Message details
-	$msg="124309eoifnw0h9wnfuowh9nwfnb9wbfo";
-	$msg=str_shuffle($msg);
-	$msg=substr($msg, 0,5);
+	$email=$_POST['email'];
+//	$_SESSION['number']=$num;
+//	$_SESSION['email']=$email;
+	$sql="SELECT * FROM user WHERE email=? and contact=? ";
+	$stmt=$pdo->prepare($sql);
+	$stmt->execute([$email,$num]);
+	if($stmt->rowCount()==1)
+	{	$str="jkuq7e9bfkua89fhqofvuihklqhf8qoif8hubfibfoguhvgiuowhfiofoulflwbfuo;wklhfiowffohwghio";
+		$str=str_shuffle($str);
+		$str=substr($str,0,10);
+		$pdo->query("UPDATE user SET token='$str' WHERE email='$email' AND contact='$num'");
+		$msg="RESET YOUR PASSWORD http://localhost/useraccount/resetpassword.php?token=$str&email=$email&number=$num ";
+		if(mail($email,"PASSWORD RESET",$msg,"FROM:IMD@gmail.com \r\n"))
+		{
+			echo "gmail sent";
+//			sleep(5);
+			header('location: http://localhost/useraccount/login.php');
+//			$_SESSION['loggedinrp']='1';
+		}
 
-	$numbers = array($num);
-	$sender = urlencode('TXTLCL');
-	$message = rawurlencode('your OTP will expire in one min. OTP is '.$msg);
- 	setcookie('otp',$msg,time()+60);
-	$numbers = implode(',', $numbers);
- 
-	// Prepare data for POST request
-	$data = array('apikey' => $apiKey, 'numbers' => $numbers, "sender" => $sender, "message" => $message);
- 
-	// Send the POST request with cURL
-	$ch = curl_init('https://api.textlocal.in/send/');
-	curl_setopt($ch, CURLOPT_POST, true);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	$response = curl_exec($ch);
-	curl_close($ch);
-	
-	// Process your response here
+	}
+	else if($stmt->rowCount()==0)
+	{
+	$sql1="SELECT * FROM admin WHERE email=? and contact=? ";
+	$stmt1=$pdo->prepare($sql1);
+	$stmt1->execute([$email,$num]);
+	if($stmt1->rowCount()==1)
+	{
+		$str="jkuq7e9bfkua89fhqofvuihklqhf8qoif8hubfibfoguhvgiuowhfiofoulflwbfuo;wklhfiowffohwghio";
+		$str=str_shuffle($str);
+		$str=substr($str,0,10);
+		$pdo->query("UPDATE admin SET token='$str' WHERE email='$email' AND contact='$num'");
+		$msg="RESET YOUR PASSWORD http://localhost/useraccount/resetpassword.php?token=$str&email=$email&number=$num ";
+		if(mail($email,"PASSWORD RESET",$msg,"FROM:IMD@gmail.com \r\n"))
+		{
+			echo "gmail sent";
+//			sleep(5);
+			header('location: http://localhost/useraccount/login.php');
+//			$_SESSION['loggedinrp']='1';
+		}
+	}
+}
 	
 
 }
-
+/*
 if(isset($_POST['otpverify']))
 {
 	if($_POST['otp']==$_COOKIE['otp']){
@@ -44,15 +69,20 @@ if(isset($_POST['otpverify']))
 		sleep(5);
 		header('location: http://localhost/useraccount/registration.php');
 	}
-}
+}*/
 ?>
+<!DOCTYPE html>
+<html>
 
 <form action="forgotpassword.php" method="post">
+	<p>ENTER GMAIL </p>
+	<input type="email" name="email" placeholder="gmail">
+	<br>
+	
 	<p>ENTER NUMBER </p>
 	<input type="text" name="number" placeholder="number">
-	<input type="submit" name="submit"><br><br>
-	<p>ENTER OTP </p>
-	<input type="text" name="otp" placeholder="otp">
-	<input type="submit" name="otpverify">
-	<p>OTP will expire in 1 min hurry!</p>
+	<br>
+	<input type="submit" name="emailverify">
+	
 </form>
+</html>
