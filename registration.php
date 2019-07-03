@@ -5,8 +5,44 @@ require_once('config.php');
 <!DOCTYPE html>
 <html>
 <head>
-	<title>registration form</title>
-	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+	<title>Sign Up Form</title>
+	<link rel="stylesheet" type="text/css" href="register.css">
+	<meta  name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script type="text/javascript">
+	
+	function validate()
+	{
+
+		var username = document.getElementById("uname").value;
+		var regx = /^[a-z A-Z 0-9 _]{2,10}$/;
+
+		if(!regx.test(username))
+		{
+			alert("Invalid username");
+		}
+		else
+		{
+			var mail = document.getElementById("email").value;
+			var regx = /^([a-zA-Z0-9_]{2,10})@([a-zA-Z0-9_]{2,10}).com$/;
+
+			if(!regx.test(mail))
+			{
+				alert("Invalid Email Address");
+			}
+			else
+			{
+				var word = document.getElementById("pass").value;
+				var regx = /^([a-zA-Z0-9_\.]{8,20})$/;
+
+				if(!regx.test(word))
+				{
+					alert("Invalid Password");
+				}
+			}
+		}
+	}
+</script>
 </head>
 <body>
 
@@ -20,6 +56,7 @@ require_once('config.php');
 		$email = $_POST['email'];
 		$contact = $_POST['contact'];
 		$password = md5($_POST['password']);
+		$organisation=$_POST['organisation'];
 		
 		$check=$db->query("select * from user where email ='".$email."'");
 		if($check->rowCount()>0){
@@ -28,9 +65,9 @@ require_once('config.php');
 		else{
 
 
-		$sql = "INSERT INTO user (firstname, lastname, email, contact, password) VALUES(?,?,?,?,?)";
+		$sql = "INSERT INTO user (firstname, lastname, email, contact, password, organisation) VALUES(?,?,?,?,?,?)";
 		$stmtinsert = $db->prepare($sql);
-		$result = $stmtinsert->execute([$firstname, $lastname, $email, $contact, $password]);
+		$result = $stmtinsert->execute([$firstname, $lastname, $email, $contact, $password, $organisation]);
 		if($result){
 
 			echo "successfully saved";
@@ -41,38 +78,52 @@ require_once('config.php');
 	}
 	}
 ?>	
-	</div>
 
-<div>
-	<form action="registration.php" method="post">
-		<div class="container">
-			<div class="row">
-				<div class="col-sm-3">
-				<h1>Registration</h1>
-				<hr class="mb-3">
-				<label for="firstname"><b>First name</b></label>
-				<input class="form-control" type="text" name="firstname" required>
+<div id="wrapper">
+	<div class="container">
 
-				<label for="lastname"><b>Last name</b></label>
-				<input class="form-control" type="text" name="lastname" required>
+		<span class="heading">Sign Up</span>
+		<form class="login" method="post">
+			
+			<div class="abcd">
+			<div class="user">
+				<span class="tag">Firstname</span><br><br>
+				<input id="uname" type="text" name="firstname" placeholder="Firstname.." required></div>
 
-				<label for="email"><b>Email</b></label>
-				<input class="form-control" type="email" name="email">
+			<div class="user">
+				<span class="tag">Lastname</span><br><br>
+				<input  type="text" name="lastname" placeholder="Lastname.." required></div>
+			
+			<div class="abcd">
+			<div class="user">
+				<span class="tag">Email Address</span><br><br>
+				<input id="email" type="text" name="email" placeholder="Email Address.." required></div>
 
-				<label for="contact"><b>Contact</b></label>
-				<input class="form-control" type="text" name="contact" required>
+			<div class="user">
+				<span class="tag">Contact</span><br><br>
+				<input  type="text" name="contact" placeholder="Contact.." required></div>
 
-				<label for="password"><b>Password</b></label>
-				<input class="form-control" type="password" name="password" required>
-				<hr class="mb-3">
+			<div class="user">
+				<span class="tag">Password</span><br><br>
+				<input id="pass" type="Password" name="password" placeholder="Password.." required></div>
 
-				<input class="btn btn-primary" type="submit" name="create" value="Sign Up">
-				</div>
-   		 	</div>
+				<div class="user">
+				<span class="tag">Organisation</span><br><br>
+				<input  type="text" name="organisation" placeholder="Organisation.." required></div>
+		
+			
+			<div class="sub">
+				<button onclick="validate()" name="create" >Sign Up</button></div>
+		
+			<div class="already">Already have an account? <a href="login.php">Sign In</a></div>
+
+			
+
+		</form>
 		</div>
-	</form>
+
+	</div>
 </div>
-<p>if already registered and accepted by admin : <a href="login.php">SIGN IN</p></a>
-<p>FORGOT PASSWORD : <a href="forgotpassword.php">click me </a></p>
+
 </body>
 </html>

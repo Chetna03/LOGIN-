@@ -1,0 +1,185 @@
+
+	/*background-image: linear-gradient(270deg, blue, orange);*/
+
+body{
+	margin: 0px;
+	padding: 0px;
+	/*font-family: arial;*/
+	box-sizing: border-box;
+}
+
+html{
+	font-size: 10px;
+}
+
+body{
+	background-color: skyblue;
+}
+
+#wrapper{
+	width: 90%;
+	height: 100vh;
+	margin: 0 auto;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.container{
+	width: 100%;
+	background-color: white;
+	max-width: 40rem;
+	height: 49rem;
+	position: relative;
+	padding: 8rem 0;
+	box-shadow: 0 1px 1.5rem grey;
+	border-radius: 1rem;
+	z-index: 1;
+}
+
+.container::before{
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 59rem;
+	background: linear-gradient(to left, #fc6767, #ec008c);
+	border-bottom-right-radius: 100%;
+	border-bottom-left-radius: 100%;
+	z-index: -1;
+}
+.heading{
+	color: #fff;
+	font-size: 2.5rem;
+	position: absolute;
+	top: 3.5rem;
+	left: 16rem;
+}
+
+form{
+	
+	transform: translateX(9rem);
+}
+
+
+.user{
+	color: black;
+	background-color: transparent;
+	width: 20rem;
+	padding-left: 2rem;
+	padding-top: 1rem;
+}
+
+.sub{
+	color: black;
+	background-color: transparent;
+	margin-top: 3rem;
+	width: 15rem;
+	padding-left: 7rem;
+	padding-top: 1rem;
+}
+
+.already{
+	color: dark grey;
+	background-color: transparent;
+	margin-top: 7rem;
+	font-size: 1.5rem;
+	width: 20.4rem;
+	padding-left: 1.6rem;
+	
+}
+
+
+
+.tag{
+	font-size: 1.5rem;
+	padding: 2rem 0;
+}
+
+/*
+.container{
+	text-align: center;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	/*width: 70vw;
+	height: 70vh;
+	background-color: skyblue;
+}
+	*/
+	/*
+}
+div{
+	background-color: rgba(0, 0, 0, 0.5);
+	width: 25vw;
+	height: 35vh;
+	padding: 1vw;
+	margin-left: 34.5vw;
+	margin-top: 5vw;
+}
+h1{
+	color: white;
+	text-align: center;
+	font-family: helvetica;
+	border-bottom: 0.2vw solid #eee;
+	padding-bottom: 1.5vw;
+}*/
+input[type=text]{
+	background: transparent;
+	border: none;
+	border-bottom: 0.08vw solid white;
+	font-weight: 0%;
+	font-size: 1.5rem;
+	padding-bottom: 0.7vw;
+	color: white;
+	
+	/*width: 18vw;
+	margin-left: 3.5vw;*/
+
+}
+input[type=password]{
+	background: transparent;
+	border: none;
+	border-bottom: 0.08vw solid white;
+	font-weight: 0%;
+	font-size: 1.5rem;
+	padding-bottom: 0.7vw;
+	color: grey;
+	
+	/*width: 18vw;
+	margin-left: 3.5vw;*/
+}
+
+button{
+	background-color: grey
+	border: none;
+	background-image: 
+	border: none;
+	color: black;
+	box-shadow: 0 1px 1.5rem grey;
+	width: 8rem;
+	height: 3rem;
+}
+
+/*
+button{
+	background: black;
+	border: none;
+	color: white;
+	width: 15vw;
+	height: 3vh;
+	margin-left: 5vw;
+	margin-top: 1vw;
+}
+span{
+	font-size: 1.2vw;
+	margin-left: 4.8vw;
+}
+a{
+	color: yellow;
+}
+a:hover{
+	color: blue;
+}*/

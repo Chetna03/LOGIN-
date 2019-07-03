@@ -1,5 +1,13 @@
 <?php
-	
+session_start();
+if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true){
+    header("location: welcome.php");
+    exit;
+}
+if(isset($_SESSION["loggedinap"]) && $_SESSION["loggedinap"] === true){
+    header("location:adminportal.php");
+    exit;
+}
 if(isset($_POST['create'])){
 	require_once('config.php');
 	@$email=$_POST['email'];
@@ -9,11 +17,12 @@ if(isset($_POST['create'])){
 	$stmtresult = $db->prepare($sql);
 	
 	$result = $stmtresult->execute([$email, md5($password)]);
-
+	echo $result;
 	if($result){
 
 		$user=$stmtresult->fetch(PDO::FETCH_ASSOC);
 		if($stmtresult->rowCount()>0){
+			$_SESSION["loggedin"]= true;
 			header("Location: welcome.php");
 
 		}
@@ -33,6 +42,7 @@ $emailap=$_POST['emailap'];
 $passwordap=$_POST['passwordap'];
 $stmt=$pdo->query("select id from adminportal where email = '$emailap' and password= '$passwordap'");
 if($stmt->rowCount()==1){
+	$_SESSION["loggedinap"]=true;
 	header("Location: adminportal.php");
 }
 }
@@ -41,63 +51,101 @@ if($stmt->rowCount()==1){
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Authentication</title>
-	<link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+	<title>Login Form</title>
+	<link rel="stylesheet" type="text/css" href="login.css">
+	<meta  name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script type="text/javascript">
+	
+	function validate()
+	{
+
+		var mail = document.getElementById("email").value;
+			var regx = /^([a-zA-Z0-9_]{2,10})@([a-zA-Z0-9_]{2,10}).com$/;
+
+			if(!regx.test(mail))
+			{
+				alert("Invalid Email Address");
+			}
+		else
+		{
+			
+				var password = document.getElementById("pass").value;
+				var regx = /^([a-z A-Z 0-9 _ \.]{8,20})$/;
+
+				if(!regx.test(password))
+				{
+					alert("Invalid Password");
+				}
+		}
+	}
+	
+
+</script>
 
 </head>
 <body>
 
 
-<div>
-	<form action="login.php" method="post">
-		<div class="container">
-			<div class="row">
-				<div class="col-sm-3">
-				<h1>Login</h1>
-				<hr class="mb-3">
+
+<div id="wrapper">
+	<div class="container">
+
+		<span class="heading">Account Login</span>
+		<form class="login" method="post" >
 			
-				<label for="email"><b>Email</b></label>
-				<input class="form-control" type="email" name="email">
-
+			<div class="abcd">
+			<div class="user">
+				<span class="tag">Email Address</span><br><br>
+				<input id="uname" type="text" name="email" placeholder="Email.." required></div>
+			
+			
+			<div class="user">
+				<span class="tag">Password</span><br><br>
+				<input id="pass" type="Password" name="password" placeholder="Password.." required></div>
 		
-				<label for="password"><b>Password</b></label>
-				<input class="form-control" type="password" name="password" required>
-				<hr class="mb-3">
+			
+			<div class="sub">
+				<button onclick="validate()" name="create">Sign in</button></div>
+		
+			<div class="already">Don't have an account? <a href="registration.php">Register</a></div>
 
-				<input class="btn btn-primary" type="submit" name="create" value="Sign In">
-				</div>
-   		 	</div>
+			<div class="change">Forgot password? <a href="forgotpassword.php">Change password</a></div>
+
+		</form>
 		</div>
-	</form>
+
+	</div>
 </div>
-<p>if not registered : <a href="registration.php">SIGN UP</a></p>
-<p>FORGOT PASSWORD : <a href="forgotpassword.php">click me </a></p>
-<script type="text/javascript" src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-<br><br>
-<h2>FOR ADMIN PORTAL SIGN IN :</h2>
 
-<div>
-	<form action="login.php" method="post">
-		<div class="container">
-			<div class="row">
-				<div class="col-sm-3">
-				<h1>Login</h1>
-				<hr class="mb-3">
+
+
+<div id="wrapper">
+	<div class="container">
+
+		<span class="heading">Admin Login</span>
+		<form class="login" action="login.php" method="post">
 			
-				<label for="emailap"><b>Email</b></label>
-				<input class="form-control" type="email" name="emailap">
-
+			<div class="abcd">
+			<div class="user">
+				<span class="tag">Email Address</span><br><br>
+				<input id="uname" type="text" name="emailap" placeholder="Email.." required></div>
+			
+			
+			<div class="user">
+				<span class="tag">Password</span><br><br>
+				<input id="pass" type="Password" name="passwordap" placeholder="Password.." required></div>
 		
-				<label for="password"><b>Password</b></label>
-				<input class="form-control" type="password" name="passwordap" required>
-				<hr class="mb-3">
+			
+			<div class="sub">
+				<button onclick="validate()" name="createap">Sign in</button></div>
+		
+			
 
-				<input class="btn btn-primary" type="submit" name="createap" value="Sign In">
-				</div>
-   		 	</div>
+		</form>
 		</div>
-	</form>
+
+	</div>
 </div>
 </body>
 </html>
