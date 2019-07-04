@@ -1,7 +1,7 @@
 <?php
 session_start();
 if(!isset($_SESSION["loggedinap"]) || $_SESSION["loggedinap"] !== true){
-    header("location: login.php");
+    header("location: adminportal_login.php");
    exit;
 }	
 ?>
@@ -36,7 +36,13 @@ if(!isset($_SESSION["loggedinap"]) || $_SESSION["loggedinap"] !== true){
 
 		<input type="number" name="delete" placeholder="ID which is to be deleted">
 		<input type="submit" name="submit2" value="delete">
+			<br>
+		<input type="number" name="idrt" placeholder="ID for reset password">
+		<input type="password" name="passwordrt" placeholder="new password">
+		<input type="submit" name="rpasswordrt" value="change password">
 	</form>
+	
+		
 	
 	
 		
@@ -112,6 +118,9 @@ if(isset($_POST['submit'])){
 				$stmt5=$pdo->prepare("DELETE FROM user WHERE id = ?");
 				$stmt5->execute([$_POST['quantity']]);
 				header('location: http://localhost/useraccount/adminportal.php');
+				if(mail($key['email'],"ACCEPTED LOGIN","You can now sign in to IMD","FROM:IMD@gmail.com \r\n")){
+					echo "<br>"."gmail sent";
+				}
 						//echo "df";
 			}
 		}
@@ -134,12 +143,38 @@ if(isset($_POST['submit2'])){
 
 }
 
+if(isset($_POST['rpasswordrt']))
+{	
+	$pdo9 = new PDO($dsn,$user,$password);
+			$pdo9->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	$ps=$pdo9->query("UPDATE user SET password='".md5($_POST['passwordrt'])."' WHERE id ='".$_POST['idrt']."'");
+	$s=$pdo->query("select email from user where id ='".$_POST['idrt']."'");
+			while($row=$s->fetch(PDO::FETCH_ASSOC)){
+				$email=$row['email'];
+
+			}
+	echo "password is reset, email is '$email' and password is ".$_POST['passwordrt']." ";
+	$msg="password is reset, email is '$email' and password is ".$_POST['passwordrt']." ";
+
+	if(mail($email,"PASSWORD RESET",$msg,"FROM:IMD@gmail.com \r\n"))
+				{
+					echo "<br>"."gmail sent";
+		//			
+				}
+
+}
+
 ?>
 
 <h1>LOGIN TABLE</h1>
 <form method="post">
 	<input type="number" name="deletelogin" placeholder="ID which is to be deleted">
 	<input type="submit" name="submitlogin" value="delete">
+			<br>
+		<input type="number" name="idlt" placeholder="ID for reset password">
+		<input type="password" name="passwordlt" placeholder="new password">
+		<input type="submit" name="rpasswordlt" value="change password">
+	
 </form>
 
 	<table>
@@ -171,6 +206,8 @@ if(isset($_POST['submit2'])){
 
 		?>
 	</table>
+
+
 <?php
 if(isset($_POST['submitlogin'])){
 	
@@ -198,6 +235,27 @@ if(isset($_POST['register']))
 		
 	}
 }
+
+if(isset($_POST['rpasswordlt']))
+{	
+	$pdo99 = new PDO($dsn,$user,$password);
+			$pdo99->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	$ps9=$pdo99->query("UPDATE admin SET password='".md5($_POST['passwordlt'])."' WHERE id ='".$_POST['idlt']."'");
+	$s9=$pdo99->query("select email from admin where id ='".$_POST['idlt']."'");
+			while($row=$s9->fetch(PDO::FETCH_ASSOC)){
+				$email9=$row['email'];
+
+			}
+	echo "password is reset, email is '$email9' and password is ".$_POST['passwordlt']." ";
+	$msg9="password is reset, email is '$email9' and password is ".$_POST['passwordlt']."for login imd ";
+
+	if(mail($email9,"PASSWORD RESET",$msg9,"FROM:IMD@gmail.com \r\n"))
+				{
+					echo "<br>"."gmail sent";
+		//			
+				}
+
+}
 ?>
 <html>
 <form method="post">
@@ -217,6 +275,11 @@ if(isset($_POST['register']))
 <form method="post">
 		<input type="number" name="deleteap" placeholder="ID which is to be deleted">
 		<input type="submit" name="submitap" value="delete">
+		<br>
+		<input type="number" name="idat" placeholder="ID for reset password">
+		<input type="password" name="passwordat" placeholder="new password">
+		<input type="submit" name="rpasswordat" value="change password">
+	
 </form>
 <?php
 if(isset($_POST['submitap'])){
@@ -255,8 +318,30 @@ if(isset($_POST['submitap'])){
 			}
 
 
+if(isset($_POST['rpasswordat']))
+{	
+	$pdo99a = new PDO($dsn,$user,$password);
+			$pdo99a->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	$ps9a=$pdo99a->query("UPDATE adminportal SET password='".md5($_POST['passwordat'])."' WHERE id ='".$_POST['idat']."'");
+	$s9a=$pdo99a->query("select email from adminportal where id ='".$_POST['idat']."'");
+			while($row=$s9a->fetch(PDO::FETCH_ASSOC)){
+				$email9a=$row['email'];
 
-		?>
+			}
+	echo "password is reset, email is '$email9a' and password is ".$_POST['passwordat']." ";
+	$msg9a="password is reset, email is '$email9a' and password is ".$_POST['passwordat']."for adminportal ";
+
+	if(mail($email9a,"PASSWORD RESET",$msg9a,"FROM:IMD@gmail.com \r\n"))
+				{
+					echo "<br>"."gmail sent";
+		//			
+				}
+
+}
+
+
+
+?>
 
 
 	</table>
@@ -271,7 +356,7 @@ if(isset($_POST['submitap'])){
 if(isset($_POST['logout']))
 {
 	session_destroy(); 
-	header("location: login.php"); 
+	header("location: adminportal_login.php"); 
 }
 ?>
 <?php
@@ -284,7 +369,7 @@ $session_life = time() - $_SESSION['timeout'];
 if($session_life > $inactive)
 {  session_destroy(); 
 
-	header("location: login.php");     }
+	header("location: adminportal_login.php");     }
 
 $_SESSION['timeout']=time();
 ?>

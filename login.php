@@ -4,10 +4,7 @@ if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true){
     header("location: welcome.php");
     exit;
 }
-if(isset($_SESSION["loggedinap"]) && $_SESSION["loggedinap"] === true){
-    header("location:adminportal.php");
-    exit;
-}
+
 if(isset($_POST['create'])){
 	require_once('config.php');
 	@$email=$_POST['email'];
@@ -28,23 +25,6 @@ if(isset($_POST['create'])){
 		}
 		
 	}
-}
-if(isset($_POST['createap'])){
-
-$host='localhost';
-$dbname='useraccounts';
-$password='';
-$user='root';
-$dsn="mysql:host=$host;dbname=$dbname";
-$pdo = new PDO($dsn,$user,$password);
-$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-$emailap=$_POST['emailap'];
-$passwordap=$_POST['passwordap'];
-$stmt=$pdo->query("select id from adminportal where email = '$emailap' and password= '$passwordap'");
-if($stmt->rowCount()==1){
-	$_SESSION["loggedinap"]=true;
-	header("Location: adminportal.php");
-}
 }
 ?>
 
@@ -120,32 +100,6 @@ if($stmt->rowCount()==1){
 
 
 
-<div id="wrapper">
-	<div class="container">
 
-		<span class="heading">Admin Login</span>
-		<form class="login" action="login.php" method="post">
-			
-			<div class="abcd">
-			<div class="user">
-				<span class="tag">Email Address</span><br><br>
-				<input id="uname" type="text" name="emailap" placeholder="Email.." required></div>
-			
-			
-			<div class="user">
-				<span class="tag">Password</span><br><br>
-				<input id="pass" type="Password" name="passwordap" placeholder="Password.." required></div>
-		
-			
-			<div class="sub">
-				<button onclick="validate()" name="createap">Sign in</button></div>
-		
-			
-
-		</form>
-		</div>
-
-	</div>
-</div>
 </body>
 </html>
