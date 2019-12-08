@@ -7,20 +7,21 @@ if(isset($_SESSION["loggedinap"]) && $_SESSION["loggedinap"] === true){
 if(isset($_POST['createap'])){
 
 $host='localhost';
-$dbname='useraccounts';
+$dbname='user_account';
 $password='';
 $user='root';
 $dsn="mysql:host=$host;dbname=$dbname";
 $pdo = new PDO($dsn,$user,$password);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $emailap=$_POST['emailap'];
-$passwordap=$_POST['passwordap'];
-$stmt=$pdo->query("select id from adminportal where email = '$emailap' and password= '$passwordap'");
-echo $stmt->rowCount();
+$passwordap=md5($_POST['passwordap']);
+$stmt=$pdo->query("select id from admin_users where email ='$emailap' and password='$passwordap'");
+
 if($stmt->rowCount()==1){
 	$_SESSION["loggedinap"]=true;
 	header("Location: adminportal.php");
 }
+else{echo "<script type='text/javascript'>alert('Wrong username or password');</script>";}
 }
 
 ?>
@@ -36,18 +37,11 @@ if($stmt->rowCount()==1){
 	function validate()
 	{
 
-		var mail = document.getElementById("email").value;
-			var regx = /^([a-zA-Z0-9_]{2,10})@([a-zA-Z0-9_]{2,10}).com$/;
-
-			if(!regx.test(mail))
-			{
-				alert("Invalid Email Address");
-			}
-		else
+		
 		{
 			
 				var password = document.getElementById("pass").value;
-				var regx = /^([a-z A-Z 0-9 _ \.]{8,20})$/;
+				var regx = /^([a-z A-Z 0-9 _ \.@#$&]{8,20})$/;
 
 				if(!regx.test(password))
 				{

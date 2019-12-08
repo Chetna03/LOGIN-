@@ -1,4 +1,6 @@
 <?php
+//admin portal is for admin(s) only 
+//if already login, admin wont need to login again
 session_start();
 if(!isset($_SESSION["loggedinap"]) || $_SESSION["loggedinap"] !== true){
     header("location: adminportal_login.php");
@@ -55,21 +57,22 @@ if(!isset($_SESSION["loggedinap"]) || $_SESSION["loggedinap"] !== true){
 			<th>Contact</th>
 			<th>Email</th>
 			<th>Organisation</th>
+			<th>Purpose</th>
 		</tr>
 		<?php
-
+			// display registered users.
 			$host='localhost';
-			$dbname='useraccounts';
+			$dbname='user_account';
 			$password='';
 			$user='root';
 
 			$dsn="mysql:host=$host;dbname=$dbname";
 			$pdo = new PDO($dsn,$user,$password);
 			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			$sql="select id, firstname, lastname, contact, email, organisation from user";
+			$sql="select id, firstname, lastname, contact, email, organisation,purpose from registered_users";
 			$stmt=$pdo->query($sql);
 			while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
-				echo "<tr><td>". $row['id'] .'</td><td>'. $row['firstname']. '</td><td>'. $row['lastname'].'</td><td>'. $row['contact'].'</td><td>'. $row['email'].'</td><td>'. $row['organisation'].'</td></tr>';
+				echo "<tr><td>". $row['id'] .'</td><td>'. $row['firstname']. '</td><td>'. $row['lastname'].'</td><td>'. $row['contact'].'</td><td>'. $row['email'].'</td><td>'. $row['organisation'].'</td><td>'.$row['purpose'].'</td></tr>';
 
 
 			}
@@ -88,40 +91,41 @@ if(!isset($_SESSION["loggedinap"]) || $_SESSION["loggedinap"] !== true){
 
 if(isset($_POST['submit'])){
 
-	//echo "gfb";
+	
 	$pdo2 = new PDO("mysql:host=$host;dbname=$dbname",$user,$password);
 	$pdo2->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	$check=$pdo->query("select email from user where id ='".$_POST['quantity']."'");
+	$check=$pdo->query("select email from registered_users where id ='".$_POST['quantity']."'");
 	while($aa=$check->fetch(PDO::FETCH_ASSOC))
 	{
 		$email_to_check=$aa['email'];
 	
 	}
-	$check2=$pdo->query("select * from admin where email ='".$email_to_check."'");
+	$check2=$pdo->query("select * from approved_users where email ='".$email_to_check."'");
 	if($check2->rowCount()>0)
 	{
-		echo "<h2>ALREADY EXIST'S</h2>";
+		//checking if user is present at login table or not.
+		echo "<script type='text/javascript'>alert('already exist');</script>";
 	}
 	else{
-			$sql2="select * from user where id ='". $_POST['quantity']."'";
+		// add selected column of user from registration table(" user " database) to login table(" admin " database).
+			$sql2="select * from registered_users where id ='". $_POST['quantity']."'";
 			$stmt2=$pdo2->query($sql2);
-			//$data=array();
-			//echo "fs";
 			$pdo3 = new PDO("mysql:host=$host;dbname=$dbname",$user,$password);
 			$pdo3->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			while ($key=$stmt2->fetch(PDO::FETCH_ASSOC)) 
 			{
 				
-				$sql3=" insert into admin (firstname, lastname, email, contact, password, organisation) values (?, ?, ?, ?, ?, ?)";
+				$sql3=" insert into approved_users (firstname, lastname, email, contact, password, organisation,token,purpose) values (?, ?, ?, ?, ?, ?, ?, ?)";
 				$stmt3=$pdo3->prepare($sql3);
-				$stmt3->execute([$key['firstname'],$key['lastname'],$key['email'],$key['contact'],$key['password'],$key['organisation']]);
-				$stmt5=$pdo->prepare("DELETE FROM user WHERE id = ?");
+				$stmt3->execute([$key['firstname'],$key['lastname'],$key['email'],$key['contact'],$key['password'],$key['organisation'],'0',$key['purpose']]);
+				$stmt5=$pdo->prepare("DELETE FROM registered_users WHERE id = ?");
 				$stmt5->execute([$_POST['quantity']]);
 				header('location: http://localhost/useraccount/adminportal.php');
+				//email sent to let user know that they can now login.
 				if(mail($key['email'],"ACCEPTED LOGIN","You can now sign in to IMD","FROM:IMD@gmail.com \r\n")){
 					echo "<br>"."gmail sent";
 				}
-						//echo "df";
+						
 			}
 		}
 	//foreach ($row as $key ) {
@@ -137,18 +141,19 @@ if(isset($_POST['submit'])){
 
 if(isset($_POST['submit2'])){
 	
-	$stmt6=$pdo->prepare("DELETE FROM user WHERE id = ?");
+	$stmt6=$pdo->prepare("DELETE FROM registered_users WHERE id = ?");
 	$stmt6->execute([$_POST['delete']]);
 	header('location: http://localhost/useraccount/adminportal.php');
-
+    //delete column(user database=" user ") from registration 
 }
 
 if(isset($_POST['rpasswordrt']))
 {	
+	//reset password of user in registration table (user) 
 	$pdo9 = new PDO($dsn,$user,$password);
 			$pdo9->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	$ps=$pdo9->query("UPDATE user SET password='".md5($_POST['passwordrt'])."' WHERE id ='".$_POST['idrt']."'");
-	$s=$pdo->query("select email from user where id ='".$_POST['idrt']."'");
+	$ps=$pdo9->query("UPDATE registered_users SET password='".md5($_POST['passwordrt'])."' WHERE id ='".$_POST['idrt']."'");
+	$s=$pdo->query("select email from registered_users where id ='".$_POST['idrt']."'");
 			while($row=$s->fetch(PDO::FETCH_ASSOC)){
 				$email=$row['email'];
 
@@ -159,7 +164,7 @@ if(isset($_POST['rpasswordrt']))
 	if(mail($email,"PASSWORD RESET",$msg,"FROM:IMD@gmail.com \r\n"))
 				{
 					echo "<br>"."gmail sent";
-		//			
+		
 				}
 
 }
@@ -186,18 +191,19 @@ if(isset($_POST['rpasswordrt']))
 			<th>Contact</th>
 			<th>Email</th>
 			<th>Organisation</th>
+			<th>Purpose</th>
 		</tr>
 		<?php
 
-			
+			//display admin table (database=" admin ")
 
 			
 			$pdo4 = new PDO($dsn,$user,$password);
 			$pdo4->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			$sql4="select id, firstname, lastname, contact, email, organisation from admin";
+			$sql4="select id, firstname, lastname, contact, email, organisation,purpose from approved_users";
 			$stmt4=$pdo4->query($sql4);
 			while($row=$stmt4->fetch(PDO::FETCH_ASSOC)){
-				echo "<tr><td>". $row['id'] .'</td><td>'. $row['firstname']. '</td><td>'. $row['lastname'].'</td><td>'. $row['contact'].'</td><td>'. $row['email'].'</td><td>'. $row['organisation'].'</td></tr>';
+				echo "<tr><td>". $row['id'] .'</td><td>'. $row['firstname']. '</td><td>'. $row['lastname'].'</td><td>'. $row['contact'].'</td><td>'. $row['email'].'</td><td>'. $row['organisation'].'</td><td>'.$row['purpose'].'</td></tr>';
 
 
 			}
@@ -210,38 +216,40 @@ if(isset($_POST['rpasswordrt']))
 
 <?php
 if(isset($_POST['submitlogin'])){
-	
-	$s=$pdo4->prepare("DELETE FROM admin WHERE id = ?");
+	//delete column (user) from admin table
+	$s=$pdo4->prepare("DELETE FROM approved_users WHERE id = ?");
 	$s->execute([$_POST['deletelogin']]);
 	header('location: http://localhost/useraccount/adminportal.php');
 }
 ?>
 <?php
+// Registration of admin portal
 $pdoap=new PDO($dsn,$user,$password);
 $pdoap->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 if(isset($_POST['register']))
-{
-	$check=$pdoap->query("select * from adminportal where email ='".$_POST['adminemail']."'");
+{//check if admin is exist or not.
+	$check=$pdoap->query("select * from admin_users where email ='".$_POST['adminemail']."'");
 	if($check->rowCount()>0)
 	{
-		echo "<h2>already registered , SIGN IN please </h2>";
+		echo "<script type='text/javascript'>alert('already registered , SIGN IN please');</script>";
 	}
 	else
 	{
-		$sqlap="INSERT INTO adminportal (name, email, password, organisation) VALUES(?,?,?,?)";
+		//registeration of admin
+		$sqlap="INSERT INTO admin_users (name, email, password, organisation,purpose) VALUES(?,?,?,?,?)";
 		$stmtap=$pdoap->prepare($sqlap);
-		$result=$stmtap->execute([$_POST['adminname'],$_POST['adminemail'],$_POST['adminpassword'],$_POST['organisation']]);
+		$result=$stmtap->execute([$_POST['adminname'],$_POST['adminemail'],md5($_POST['adminpassword']),$_POST['organisation'],$_POST['purpose']]);
 	
 		
 	}
 }
 
 if(isset($_POST['rpasswordlt']))
-{	
+{	//password reset for registration table (admin)
 	$pdo99 = new PDO($dsn,$user,$password);
 			$pdo99->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	$ps9=$pdo99->query("UPDATE admin SET password='".md5($_POST['passwordlt'])."' WHERE id ='".$_POST['idlt']."'");
-	$s9=$pdo99->query("select email from admin where id ='".$_POST['idlt']."'");
+	$ps9=$pdo99->query("UPDATE approved_users SET password='".md5($_POST['passwordlt'])."' WHERE id ='".$_POST['idlt']."'");
+	$s9=$pdo99->query("select email from approved_users where id ='".$_POST['idlt']."'");
 			while($row=$s9->fetch(PDO::FETCH_ASSOC)){
 				$email9=$row['email'];
 
@@ -283,8 +291,8 @@ if(isset($_POST['rpasswordlt']))
 </form>
 <?php
 if(isset($_POST['submitap'])){
-	
-	$stmt1ap=$pdoap->prepare("DELETE FROM adminportal WHERE id = ?");
+	//delete of admin column from admin portal
+	$stmt1ap=$pdoap->prepare("DELETE FROM admin_users WHERE id = ?");
 	$stmt1ap->execute([$_POST['deleteap']]);
 	header('location: http://localhost/useraccount/adminportal.php');
 
@@ -296,23 +304,23 @@ if(isset($_POST['submitap'])){
 			<th>ID</th>
 			<th>name</th>
 			<th>email</th>
-			<th>password</th>
 			<th>organisation</th>
+
 		</tr>
 		<?php
-
+			// display admin portal
 			$host='localhost';
-			$dbname='useraccounts';
+			$dbname='user_account';
 			$password='';
 			$user='root';
 
 			$dsn="mysql:host=$host;dbname=$dbname";
 			$pdo = new PDO($dsn,$user,$password);
 			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			$sql="select id, name, email,password, organisation from adminportal";
+			$sql="select id, name, email,password, organisation from admin_users";
 			$stmt=$pdo->query($sql);
 			while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
-				echo "<tr><td>". $row['id'] .'</td><td>'. $row['name']. '</td><td>'. $row['email'].'</td><td>'. $row['password'].'</td><td>'. $row['organisation'].'</td></tr>';
+				echo "<tr><td>". $row['id'] .'</td><td>'. $row['name']. '</td><td>'. $row['email'].'</td><td>'. $row['organisation'].'</td></tr>';
 
 
 			}
@@ -320,10 +328,11 @@ if(isset($_POST['submitap'])){
 
 if(isset($_POST['rpasswordat']))
 {	
+	//reset password of adminportal
 	$pdo99a = new PDO($dsn,$user,$password);
 			$pdo99a->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	$ps9a=$pdo99a->query("UPDATE adminportal SET password='".md5($_POST['passwordat'])."' WHERE id ='".$_POST['idat']."'");
-	$s9a=$pdo99a->query("select email from adminportal where id ='".$_POST['idat']."'");
+	$ps9a=$pdo99a->query("UPDATE admin_users SET password='".md5($_POST['passwordat'])."' WHERE id ='".$_POST['idat']."'");
+	$s9a=$pdo99a->query("select email from admin_users where id ='".$_POST['idat']."'");
 			while($row=$s9a->fetch(PDO::FETCH_ASSOC)){
 				$email9a=$row['email'];
 
@@ -354,13 +363,16 @@ if(isset($_POST['rpasswordat']))
 </form>
 <?php
 if(isset($_POST['logout']))
-{
-	session_destroy(); 
+{	//if logout, then need to login again 
+	session_destroy();
 	header("location: adminportal_login.php"); 
+
+	
 }
 ?>
 <?php
-$inactive = 1800;
+//if nothing happens for 30 minutes automatic logout
+$inactive = 1800;//1800 is 30 minutes in seconds 
 if( !isset($_SESSION['timeout']) )
 $_SESSION['timeout'] = time() + $inactive; 
 

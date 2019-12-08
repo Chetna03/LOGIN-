@@ -1,5 +1,6 @@
 <?php
 session_start();
+//if logged in , this code wont let them login again.
 if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true){
     header("location: welcome.php");
     exit;
@@ -9,22 +10,24 @@ if(isset($_POST['create'])){
 	require_once('config.php');
 	@$email=$_POST['email'];
 	@$password=$_POST['password'];
-
-	$sql = "SELECT * FROM admin WHERE email = ? AND password = ? LIMIT 1";
+//login data(email and password) is checked from data base name " approved_users ".
+	$sql = "SELECT * FROM approved_users WHERE email = ? AND password = ? LIMIT 1";
 	$stmtresult = $db->prepare($sql);
 	
 	$result = $stmtresult->execute([$email, md5($password)]);
-	echo $result;
 	if($result){
 
 		$user=$stmtresult->fetch(PDO::FETCH_ASSOC);
-		if($stmtresult->rowCount()>0){
+		if($stmtresult->rowCount()>0)
+		{
+			// if user exist with valid password and email , user will login.
 			$_SESSION["loggedin"]= true;
 			header("Location: welcome.php");
 
 		}
-		
+		else{echo "<script type='text/javascript'>alert('Wrong username or password');</script>";}
 	}
+	
 }
 ?>
 

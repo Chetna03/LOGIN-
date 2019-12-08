@@ -1,4 +1,5 @@
 <?php
+//welcome php is just example website , for every code insted of welcome.php use website which is to be showed
 session_start();
 $inactive = 600;
 if( !isset($_SESSION['timeout']) )
